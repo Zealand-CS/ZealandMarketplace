@@ -1,7 +1,13 @@
+using ZealandMarketplace.Services.Interfaces;
+using ZealandMarketplace.Services.Services.ItemService;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<ADOItem>();
+
 
 var app = builder.Build();
 
