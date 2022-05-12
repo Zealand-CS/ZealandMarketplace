@@ -23,4 +23,9 @@
       <Content Include="Areas\.DS_Store" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Pages\Auth\Login.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Auth\Register.cshtml" />
+    </ItemGroup>
+
 </Project>

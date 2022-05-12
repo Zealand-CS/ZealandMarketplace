@@ -1,7 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using ZealandMarketplace.Services.Interfaces;
-using ZealandMarketplace.Services.Services.ItemService;
-using ZealandMarketplace.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.Data.SqlClient;
@@ -9,22 +6,27 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Design;
 
 
-using ZealandMarketplace.Data;
+using ZealandMarketplace.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddScoped<IItemService, ItemService>();
-builder.Services.AddScoped<ADOItem>();
 
 var connectionString = builder.Configuration.GetConnectionString("Azure");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<MarketPlaceDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<MarketPlaceDbContext>();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdministratorRole",
+        policy => policy.RequireRole("Administrator"));
+});
+
 builder.Services.AddRazorPages();
 
 builder.Services.Configure<IdentityOptions>(options =>
@@ -54,8 +56,8 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.HttpOnly = true;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
 
-    options.LoginPath = "/Identity/Account/Login";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.LoginPath = "/Pages/Account/Login";
+    options.AccessDeniedPath = "/Pages/Account/AccessDenied";
     options.SlidingExpiration = true;
 });
 
@@ -75,7 +77,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapRazorPages();
 
